@@ -1,10 +1,4 @@
-## 14. Charts
-
-Generated from measured CSVs (not placeholders):
-
-```powershell
-python scripts/generate_report.py
-```
+##Result Charts
 
 | Chart | File |
 |-------|------|
