@@ -1,3 +1,27 @@
+## 14. Charts
+
+Generated from measured CSVs (not placeholders):
+
+```powershell
+python scripts/generate_report.py
+```
+
+| Chart | File |
+|-------|------|
+| Ingestion throughput | ![ingestion](charts/ingestion_throughput.png) |
+| Traversal p50 | ![traversal_p50](charts/traversal_p50.png) |
+| Traversal p95 | ![traversal_p95](charts/traversal_p95.png) |
+| Lookup p50 | ![lookup](charts/lookup_latency.png) |
+| Aggregation p50 | ![aggregation](charts/aggregation_latency.png) |
+| Mixed QPS | ![mixed](charts/mixed_workload_qps.png) |
+| Concurrency scaling | ![scaling](charts/concurrency_scaling.png) |
+
+---
+
+
+
+
+
 # CognoDB Cloud Graph Database Benchmark
 
 Honest, reproducible cloud benchmarking of **CognoDB Cloud** against Neo4j, Memgraph, FalkorDB, and ArangoDB using the same dataset, identical logical workloads, the same client machine, and documented resource configurations.
