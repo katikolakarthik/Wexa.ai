@@ -1,0 +1,2 @@
+database,batch_size,nodes_inserted,relationships_inserted,node_load_ms,relationship_load_ms,total_ingestion_ms,nodes_per_second,relationships_per_second,verified_node_count,verified_relationship_count,counts_match,success,error
+neo4j,1000,34489,399000,3368.731,49578.746,53042.75,10237.981,8047.803,34489,399000,True,True,

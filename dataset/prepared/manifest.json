@@ -1,0 +1,21 @@
+{
+  "dataset_name": "cit-HepPh",
+  "source_page": "https://snap.stanford.edu/data/cit-HepPh.html",
+  "download_url": "https://snap.stanford.edu/data/cit-HepPh.txt.gz",
+  "raw_file": "dataset/raw/cit-HepPh.txt.gz",
+  "raw_sha256": "917e77b3344aed33fd2d849443c9512b7c528b9dc87251d4245fb3777bbe4128",
+  "raw_size_bytes": 1664504,
+  "node_count": 34489,
+  "relationship_count": 399000,
+  "self_loops_removed": 44,
+  "duplicate_edges_removed": 0,
+  "nodes_csv": "dataset/prepared/nodes.csv",
+  "relationships_csv": "dataset/prepared/relationships.csv",
+  "prepared_size_bytes": 9237154,
+  "preparation_notes": "Deterministic parse of SNAP cit-HepPh.txt.gz. Comments skipped; self-loops removed; duplicate directed edges collapsed. Then deterministic seeded subsample to 399,000 relationships (seed=42) so Neo4j Aura free (400k rel cap) and all other platforms share one identical prepared graph. Full unique edge count before subsample: 421,534. All relationships typed as CITES; nodes labeled Paper.",
+  "full_relationship_count": 421534,
+  "subsample_applied": true,
+  "subsample_seed": 42,
+  "max_relationships": 399000,
+  "prepared_relationships_sha256": "0ca016b1b970f0249f121facde5c71b93d9fce45125fbe9122c9d85ab8e5b56d"
+}

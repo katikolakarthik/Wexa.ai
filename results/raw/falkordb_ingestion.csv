@@ -1,0 +1,2 @@
+database,batch_size,nodes_inserted,relationships_inserted,node_load_ms,relationship_load_ms,total_ingestion_ms,nodes_per_second,relationships_per_second,verified_node_count,verified_relationship_count,counts_match,success,error
+falkordb,1000,34489,399000,2871.824,59304.157,62212.703,12009.44,6728.028,34489,399000,True,True,

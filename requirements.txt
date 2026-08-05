@@ -1,0 +1,19 @@
+# Pinned dependencies for reproducible Graph Database Cloud Benchmarking.
+# Requires Python 3.11+.
+
+neo4j==5.28.1
+python-dotenv==1.1.0
+pandas==2.2.3
+numpy==2.2.4
+matplotlib==3.10.1
+tqdm==4.67.1
+psutil==7.0.0
+requests==2.32.3
+PyYAML==6.0.2
+
+# Competitor drivers (installed now; used in later phases)
+python-arango==8.1.6
+falkordb==1.1.1
+
+# Testing
+pytest==8.3.5

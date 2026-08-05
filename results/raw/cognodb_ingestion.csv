@@ -1,0 +1,2 @@
+database,batch_size,nodes_inserted,relationships_inserted,node_load_ms,relationship_load_ms,total_ingestion_ms,nodes_per_second,relationships_per_second,verified_node_count,verified_relationship_count,counts_match,success,error
+cognodb,1000,34489,399000,18807.599,204663.598,223554.456,1833.78,1949.541,34489,399000,True,True,

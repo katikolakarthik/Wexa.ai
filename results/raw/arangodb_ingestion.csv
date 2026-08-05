@@ -1,0 +1,2 @@
+database,batch_size,nodes_inserted,relationships_inserted,node_load_ms,relationship_load_ms,total_ingestion_ms,nodes_per_second,relationships_per_second,verified_node_count,verified_relationship_count,counts_match,success,error
+arangodb,1000,34489,399000,28776.915,180896.779,212674.325,1198.495,2205.678,34489,399000,True,True,

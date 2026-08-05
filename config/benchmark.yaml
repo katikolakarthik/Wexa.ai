@@ -1,0 +1,96 @@
+# Public graph dataset used for all benchmark platforms (Phase 2).
+#
+# Source: SNAP cit-HepPh (Arxiv HEP-PH citation network)
+# Page:   https://snap.stanford.edu/data/cit-HepPh.html
+# File:   https://snap.stanford.edu/data/cit-HepPh.txt.gz
+
+dataset:
+  name: cit-HepPh
+  source_page: https://snap.stanford.edu/data/cit-HepPh.html
+  download_url: https://snap.stanford.edu/data/cit-HepPh.txt.gz
+  prepared_dir: dataset/prepared
+  raw_dir: dataset/raw
+  nodes_file: nodes.csv
+  relationships_file: relationships.csv
+  min_relationships: 100000
+  target_relationships_min: 100000
+  target_relationships_max: 500000
+  relationship_type: CITES
+  node_label: Paper
+
+random_seed: 42
+
+batch_size: 1000
+
+warmup_iterations: 20
+measured_iterations: 100
+
+concurrency_levels:
+  - 1
+  - 10
+  - 40
+
+read_ratio: 0.8
+write_ratio: 0.2
+
+timeout_seconds: 120
+
+result_directory: results
+raw_directory: results/raw
+processed_directory: results/processed
+charts_directory: charts
+
+# CognoDB c0 free instance (values observed in CognoDB UI as of setup).
+# Assignment docs historically mentioned 256 MB RAM; current UI reports 512 MB.
+# Treat observed UI values as the actual test configuration.
+resources:
+  cognodb:
+    deployment: cloud_free_c0
+    region: us-east4  # N. Virginia (per CognoDB UI)
+    vcpu: 0.5  # burst
+    ram_mb: 512
+    storage_gib: 1
+    connections: 200
+    disk_iops: 500
+    notes: >
+      RAM discrepancy: assignment text referenced 256 MB free-tier RAM;
+      CognoDB UI currently reports 512 MB. Benchmark uses UI-reported values.
+
+  neo4j:
+    deployment: aura_free_observed
+    region: not observable
+    vcpu: not observable
+    ram_mb: not observable
+    storage_gib: not observable
+    notes: >
+      Aura free hard-caps relationships at 400000. Canonical prepared graph is a
+      deterministic seed-42 subsample of cit-HepPh with 399000 relationships shared
+      by all five platforms. vCPU/RAM/region not independently verified in console.
+
+  memgraph:
+    deployment: memgraph_cloud_observed
+    region: not observable
+    vcpu: not observable
+    ram_mb: not observable
+    storage_gib: not observable
+    notes: >
+      Loaded shared 399k subsample via bolt+ssc. Do not claim CognoDB resource parity.
+
+  falkordb:
+    deployment: falkordb_cloud_single_observed
+    region: ap-south-1  # from FalkorDB Browser connection string
+    vcpu: not observable
+    ram_mb: not observable
+    storage_gib: not observable
+    notes: >
+      Loaded shared 399k subsample into named graph 'benchmark'.
+      Region differs from CognoDB us-east4.
+
+  arangodb:
+    deployment: arangodb_cloud_observed
+    region: not observable
+    vcpu: not observable
+    ram_mb: not observable
+    storage_gib: not observable
+    notes: >
+      Uses AQL adapters; loaded shared 399k subsample. Do not claim CognoDB parity.
