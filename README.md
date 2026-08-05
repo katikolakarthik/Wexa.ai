@@ -1,10 +1,47 @@
 # CognoDB Cloud Graph Database Benchmark
 
-Honest, reproducible cloud benchmarking of **CognoDB Cloud** against Neo4j, Memgraph, FalkorDB, and ArangoDB using the same dataset, identical logical workloads, the same client machine, and documented resource configurations.
+This repository contains a **completed, reproducible** cloud benchmark comparing **CognoDB Cloud** with Neo4j, Memgraph, FalkorDB, and ArangoDB. All five platforms use the same prepared public dataset, identical logical workloads, one client machine, and documented (where observable) resource configurations.
 
-This repository is built incrementally. **Phase 1 (connectivity)** is implemented. Later phases add dataset preparation, ingestion, workloads, competitor adapters, and report generation.
+The goal is a fair technical comparison—not to force any vendor to win. Numbers come only from measured runs under `results/`; nothing is fabricated.
 
-The goal is **not** to make CognoDB win. The goal is a fair technical comparison.
+---
+
+## Benchmark at a Glance
+
+| Item | Detail |
+|------|--------|
+| Platforms | **5** — CognoDB, Neo4j, Memgraph, FalkorDB, ArangoDB |
+| Shared dataset | SNAP cit-HepPh (Aura-safe deterministic subsample, seed `42`) |
+| Graph size | **34,489** nodes / **399,000** relationships |
+| Workloads | Ingestion; directed 1-hop / 2-hop / 3-hop traversal; point + indexed/filtered lookup; aggregation; mixed concurrent read/write (80/20 at concurrency 1 / 10 / 40) |
+| Latency reporting | Client-observed **p50** and **p95** (plus fuller distributions in CSVs) |
+| Query errors (measured runs) | **0** across all five databases |
+
+---
+
+## Key Results
+
+Executive visual summary from the existing chart files in [`charts/`](charts/). Full tables appear later under **Results**; the complete chart set is under **Charts**.
+
+### Traversal latency (p95)
+
+![Traversal p95](charts/traversal_p95.png)
+
+*Client-observed p95 latency (ms) for directed 1-hop, 2-hop, and 3-hop `CITES` traversals on the shared 34,489 / 399,000 graph.*
+
+### Ingestion throughput
+
+![Ingestion throughput](charts/ingestion_throughput.png)
+
+*Batched load throughput (nodes/s and relationships/s) measured while ingesting the identical prepared CSVs into each database.*
+
+### Mixed workload concurrency scaling
+
+![Concurrency scaling](charts/concurrency_scaling.png)
+
+*End-to-end mixed read/write throughput (ops/s) at concurrency 1, 10, and 40 (default 80% reads / 20% writes).*
+
+All results shown here are measurements from the documented benchmark environment. Differences in managed-service resource limits and platform configurations are discussed in the Fairness and Limitations sections.
 
 ---
 
@@ -24,15 +61,15 @@ Adapters keep logical operations identical even when query languages differ (Cyp
 
 ## 2. Databases Compared
 
-| Database   | Role              | Query interface              | Phase status                          |
-|------------|-------------------|------------------------------|----------------------------------------|
-| CognoDB    | Primary           | Neo4j-compatible Bolt/Cypher | Phases 1–4 complete (loaded + measured) |
-| Neo4j      | Comparison        | Cypher (Bolt)                | Phase 5 adapter ready                 |
-| Memgraph   | Comparison        | Cypher-compatible            | Phase 5 adapter ready                 |
-| FalkorDB   | Comparison        | Cypher via FalkorDB client   | Phase 5 adapter ready                 |
-| ArangoDB   | Comparison        | AQL                          | Phase 5 adapter ready                 |
+| Database   | Role              | Query interface              | Status |
+|------------|-------------------|------------------------------|--------|
+| CognoDB    | Primary           | Neo4j-compatible Bolt/Cypher | Complete — loaded and measured |
+| Neo4j      | Comparison        | Cypher (Bolt)                | Complete — loaded and measured |
+| Memgraph   | Comparison        | Cypher-compatible            | Complete — loaded and measured |
+| FalkorDB   | Comparison        | Cypher via FalkorDB client   | Complete — loaded and measured |
+| ArangoDB   | Comparison        | AQL                          | Complete — loaded and measured |
 
-Databases without valid credentials are marked **NOT RUN / CREDENTIALS REQUIRED**. No fabricated numbers are published.
+No fabricated numbers are published. Reproduction without credentials reports **NOT RUN / CREDENTIALS REQUIRED** until `.env` is configured.
 
 ---
 
@@ -73,7 +110,7 @@ Preparation is deterministic (comments skipped, self-loops removed, duplicate di
 | CognoDB connections | **200** |
 | CognoDB disk IOPS | up to **500** |
 
-Client machine details (CPU model, RAM, network) should be recorded when benchmarks are executed.
+Client machine details (CPU model, RAM) for the measured runs are recorded in [`results/ENVIRONMENT.md`](results/ENVIRONMENT.md).
 
 ---
 
@@ -123,7 +160,7 @@ Shared settings live in `config/benchmark.yaml`:
 
 Workloads are invoked via `GraphDatabaseAdapter` methods so the runner never embeds database-specific query syntax.
 
-Timing uses high-resolution monotonic clocks (`time.perf_counter_ns()` for ingestion in Phase 3+).
+Timing uses high-resolution monotonic clocks (`time.perf_counter_ns()` for ingestion timing).
 
 Raw per-iteration latencies are retained; summaries and charts are derived from those files only.
 
@@ -131,7 +168,7 @@ Raw per-iteration latencies are retained; summaries and charts are derived from 
 
 ## 7. Data Loading Benchmark
 
-Phase 3 measures batched node and relationship ingestion for CognoDB (then other adapters):
+Measures batched node and relationship ingestion on each configured adapter:
 
 - nodes/sec, relationships/sec
 - node load time, relationship load time, total wall-clock ingestion time
@@ -142,7 +179,7 @@ Dataset download/preparation time is **excluded** from ingestion metrics.
 
 ## 8. Traversal Benchmark
 
-Phase 4 implements directed outgoing 1-hop, 2-hop, and 3-hop traversals over `CITES`:
+Directed outgoing 1-hop, 2-hop, and 3-hop traversals over `CITES`:
 
 - one fixed start-node list (`dataset/prepared/start_nodes.json`, seed `42`) reused across platforms
 - warm-up then ≥ 100 measured iterations
@@ -151,7 +188,7 @@ Phase 4 implements directed outgoing 1-hop, 2-hop, and 3-hop traversals over `CI
 
 ## 9. Lookup Benchmark
 
-Phase 4 implements:
+Two lookup workloads:
 
 1. point lookup by `Paper.node_id` (unique constraint/index)
 2. filtered lookup by `Paper.label = 'Paper'` (index on `label` when supported)
@@ -172,13 +209,13 @@ Index behavior may not be directly comparable across engines; differences are re
 
 ## 10. Aggregation Benchmark
 
-Phase 4 implements at least one count/group-by style aggregation (e.g. relationships by type), with p50/p95 after warm-up.
+At least one count/group-by style aggregation (e.g. relationships by type), with p50/p95 after warm-up.
 
 ---
 
 ## 11. Mixed Read/Write Benchmark
 
-Phase 4 implements concurrent mixed workloads (default 80% reads / 20% writes) at concurrency levels 1, 10, and 40 where platform limits allow. Writes use temporary benchmark entities and clean up when possible.
+Concurrent mixed workloads (default 80% reads / 20% writes) at concurrency levels 1, 10, and 40 where platform limits allow. Writes use temporary benchmark entities and clean up when possible.
 
 ---
 
@@ -271,7 +308,7 @@ Resource parity is **not** claimed. Observed gaps may reflect region, tier memor
 
 ## 14. Charts
 
-Generated from measured CSVs (not placeholders):
+Complete chart collection regenerated from measured CSVs (not placeholders). The **Key Results** section above features three of these as an executive summary.
 
 ```powershell
 python scripts/generate_report.py
@@ -317,8 +354,7 @@ Observations from the measured runs (with fairness caveats):
 ### Prerequisites
 
 - Python 3.11+
-- CognoDB Cloud account and a running c0 instance
-- Later: accounts/instances for Neo4j, Memgraph, FalkorDB, ArangoDB
+- Cloud accounts/instances for CognoDB, Neo4j, Memgraph, FalkorDB, and ArangoDB (as needed for reproduction)
 
 ### Setup
 
@@ -333,36 +369,41 @@ copy .env.example .env
 
 Edit `.env` with your CognoDB credentials (see Security). **Do not paste passwords into chat or commit `.env`.**
 
-### Phase 1 — connectivity test
+### Connectivity test
 
 ```powershell
 python scripts/test_cognodb_connection.py
+# or all configured platforms:
+python scripts/test_connections.py
 ```
 
-Expected success line:
+Expected CognoDB success line:
 
 ```text
 SUCCESS: Connected to CognoDB and executed RETURN 1 AS result.
 ```
 
-### Phase 2 — prepare public dataset
+### Prepare public dataset
 
 ```powershell
 # Shared Aura-safe graph for all five platforms (required for Neo4j Aura free):
 python scripts/prepare_dataset.py --aura-safe --seed 42
 ```
 
-### Phase 3 — load into CognoDB
+### Load data
 
 ```powershell
 # --clear is required when the database already contains data (destructive).
 python scripts/load_data.py --database cognodb --clear
+# or every DB with credentials configured:
+python scripts/load_data.py --database all --clear
 ```
 
-### Phase 4 — CognoDB workloads
+### Run workloads
 
 ```powershell
 python scripts/run_benchmark.py --database cognodb
+python scripts/run_benchmark.py --database all
 ```
 
 Optional subsets:
@@ -372,20 +413,9 @@ python scripts/run_benchmark.py --database cognodb --workloads traversal,lookup
 python scripts/run_benchmark.py --database cognodb --skip-mixed
 ```
 
-### Phase 5 — competitor connectivity
-
-```powershell
-python scripts/test_connections.py
-python scripts/load_data.py --database neo4j --clear
-python scripts/run_benchmark.py --database neo4j
-# or every DB with credentials configured:
-python scripts/load_data.py --database all --clear
-python scripts/run_benchmark.py --database all
-```
-
 Setup details: `docs/COMPETITOR_SETUP.md`
 
-### Phase 7 — charts and tables
+### Charts and tables
 
 ```powershell
 python scripts/generate_report.py
@@ -428,11 +458,14 @@ cognodb-graph-benchmark/
     metrics/
     utils/
   scripts/
-    test_cognodb_connection.py   # Phase 1
-    prepare_dataset.py           # Phase 2
-    load_data.py                 # Phase 3
-    run_benchmark.py             # Phases 4–6
-    generate_report.py           # Phase 7
+    test_cognodb_connection.py
+    test_connections.py
+    prepare_dataset.py
+    load_data.py
+    run_benchmark.py
+    generate_report.py
+    capture_environment.py
+    run_pipeline.py
   results/raw/
   results/processed/
   charts/
@@ -464,7 +497,7 @@ Competitor variables are listed in `.env.example` and `docs/COMPETITOR_SETUP.md`
 
 ## 20. Conclusions
 
-Based on measured Phase 6/7 results (shared Aura-safe subsample):
+Based on measured results (shared Aura-safe subsample):
 
 - All five platforms completed an identical logical workload on the same prepared graph (34,489 nodes / 399,000 relationships).
 - Client-observed latencies and throughput differ substantially across vendors; **resource and region inequivalence prevent treating these numbers as a pure engine ranking**.
@@ -474,15 +507,12 @@ No statement of the form “CognoDB is fastest” is supported or claimed by thi
 
 ---
 
-## Implementation status
+## Deliverables
 
-| Phase | Description                         | Status        |
-|-------|-------------------------------------|---------------|
-| 1     | Repo scaffold + CognoDB connectivity| **Complete**  |
-| 2     | Public dataset download/prepare     | **Complete**  |
-| 3     | CognoDB ingestion                   | **Complete**  |
-| 4     | CognoDB workloads                   | **Complete**  |
-| 5     | Competitor adapters                 | **Complete**  |
-| 6     | Live benchmarks (all five DBs)      | **Complete** (shared 399k subsample) |
-| 7     | CSV summaries + charts + tables     | **Complete**  |
-| 8     | Fairness / security / docs review   | **Complete**  |
+| Area | Description | Status |
+|------|-------------|--------|
+| Connectivity + adapters | CognoDB and four competitors | **Complete** |
+| Shared dataset | Aura-safe cit-HepPh subsample (seed 42) | **Complete** |
+| Ingestion + workloads | All five databases measured | **Complete** |
+| Results + charts | CSVs, tables, PNGs under `results/` and `charts/` | **Complete** |
+| Fairness / security / docs | Caveats, secrets handling, reproduction | **Complete** |
