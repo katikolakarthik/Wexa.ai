@@ -98,10 +98,17 @@ Preparation is deterministic (comments skipped, self-loops removed, duplicate di
 
 ## 4. Benchmark Environment
 
+Client values below come from [`results/ENVIRONMENT.md`](results/ENVIRONMENT.md) (captured after the shared-subsample benchmark run). Uncaptured fields are labeled explicitly.
+
 | Item | Value |
 |------|--------|
-| Client OS | Document at run time |
-| Client Python | 3.11+ |
+| Client OS | Windows-11-10.0.26200-SP0 (captured) |
+| Client Python | 3.13.5 (captured; suite requires 3.11+) |
+| Client CPU | Intel64 Family 6 Model 154 Stepping 4, GenuineIntel (captured) |
+| Client logical CPUs | 12 (captured) |
+| Client physical CPUs | 10 (captured) |
+| Client RAM (total) | 16068.7 MB (captured) |
+| Client network RTT / region of client | not captured |
 | Primary DB | CognoDB Cloud c0 free instance |
 | CognoDB region | N. Virginia / `us-east4` (per CognoDB UI) |
 | CognoDB RAM | **512 MB** (UI-reported; see Resource Fairness) |
@@ -109,8 +116,6 @@ Preparation is deterministic (comments skipped, self-loops removed, duplicate di
 | CognoDB storage | **1 GiB** |
 | CognoDB connections | **200** |
 | CognoDB disk IOPS | up to **500** |
-
-Client machine details (CPU model, RAM) for the measured runs are recorded in [`results/ENVIRONMENT.md`](results/ENVIRONMENT.md).
 
 ---
 
@@ -308,7 +313,7 @@ Resource parity is **not** claimed. Observed gaps may reflect region, tier memor
 
 ## 14. Charts
 
-Complete chart collection regenerated from measured CSVs (not placeholders). The **Key Results** section above features three of these as an executive summary.
+Complete chart collection generated from measured CSVs (not fabricated). The **Key Results** section above features three of these as an executive summary.
 
 ```powershell
 python scripts/generate_report.py
@@ -332,7 +337,7 @@ Observations from the measured runs (with fairness caveats):
 
 1. **All five databases** loaded and verified the identical prepared graph (**34,489 / 399,000**) — a deterministic seed-42 subsample of cit-HepPh chosen so Neo4j Aura free’s 400k relationship cap does not force a split dataset.
 2. **Point/traversal latencies** for CognoDB and Memgraph remained in a similar ~220–250 ms p50 band from this client; Neo4j was lower (~54 ms p50); FalkorDB measured ~26 ms p50; ArangoDB was higher and showed a heavy 3-hop p95 (~3.8 s).
-3. **Aggregation** was relatively expensive on all platforms; Neo4j and Memgraph posted the lowest aggregation p50 among completed runs in this client observation window.
+3. **Aggregation** was relatively expensive on all platforms; in this client observation window, Neo4j recorded the lowest aggregation p50, followed by Memgraph (resources/regions not normalized).
 4. **Mixed concurrency scaled up** on all platforms from 1→10→40 workers; absolute QPS levels differ sharply (again, not normalized for hardware/region).
 5. These are **honest end-to-end client-observed** numbers. They should not be read as a claim that any engine is universally “fastest,” especially while resources/regions are unequal.
 
